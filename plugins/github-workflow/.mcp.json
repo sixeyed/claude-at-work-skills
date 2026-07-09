@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "github": {
+    "github-workflow": {
       "type": "http",
       "url": "https://api.githubcopilot.com/mcp/"
     }
