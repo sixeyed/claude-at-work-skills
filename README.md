@@ -16,8 +16,6 @@ None of the skills merge, force-push, or touch the default branch. Review and me
 
 ## Installation
 
-You'll need Claude Code, plus GitHub access from your terminal — either the `gh` CLI (installed and authenticated) or a connected GitHub MCP server. The skills check for both and tell you what's missing if neither is set up.
-
 Add the marketplace and install the plugin from inside Claude Code:
 
 ```
@@ -25,7 +23,9 @@ Add the marketplace and install the plugin from inside Claude Code:
 /plugin install github-workflow@claude-at-work-skills
 ```
 
-That's it — the skills are picked up automatically.
+The skills are picked up automatically, and the plugin bundles GitHub's official remote MCP server so it has GitHub access out of the box. The first time it's used you'll get an OAuth prompt — authorize in the browser once and the connection is stored. You can check the status or re-authenticate any time with `/mcp`.
+
+If you have the `gh` CLI installed and authenticated, the skills will use that instead — the MCP server is the fallback, and it's what makes the plugin work in sandboxed environments (like the desktop app) where terminal commands can't reach `api.github.com`.
 
 ## Usage
 
