@@ -7,10 +7,12 @@ description: Use when the user asks to implement a GitHub issue — "work on iss
 
 Pick up a GitHub issue, implement it on a branch, and leave the work committed locally. Create and read only — this skill never merges, never commits to the default branch, never deletes anything.
 
+This skill runs in Claude Code against a real local clone, so it uses **`git` and the `gh` CLI** — that's the path for reading the issue, branching, and committing. The bundled `github-workflow` connector is not needed here; don't reach for it.
+
 ## Preflight — refuse to start if the tree isn't clean
 
-1. **Find the repo:** derive `owner/repo` from `git remote get-url origin`. No remote? Stop and tell the user to push the repo to GitHub first.
-2. **Find your GitHub access:** this plugin bundles the GitHub MCP connector (see `.mcp.json`), so prefer its tools first. If they aren't available, the connector needs a one-time authorization — point the user to **Settings → Connectors → github-workflow → Connect** (GitHub OAuth) and stop until it's done; don't tell them to add a connector manually (it's already installed). Fallback: the `gh` CLI if installed and authenticated (`gh auth status`), noting it's generally unavailable in a Cowork sandbox. See `README.md` for setup.
+1. **Find your tools:** confirm `gh` is installed and authenticated (`gh auth status`). If it isn't, stop and tell the user to run `gh auth login` — this skill needs it to read the issue.
+2. **Find the repo:** derive `owner/repo` from `git remote get-url origin`. No remote? Stop and tell the user to push the repo to GitHub first.
 3. **Check the working tree:** if `git status` shows uncommitted changes, **stop before doing anything else**. Show the user what's modified and let them decide — stash, commit, or discard is their call, especially when the changes touch files the issue needs. Do not stash or discard on their behalf.
 
 ## Steps

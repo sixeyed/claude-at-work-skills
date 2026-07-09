@@ -7,15 +7,22 @@ description: Use when the user wants to record a decision, task, bug, or open qu
 
 Turn a decision, task, bug, or open question into a well-formed GitHub issue on the repo's own remote. Create and read only — this skill never merges, never pushes, never deletes anything.
 
+This skill can run in Claude Code or in Cowork, so pick the GitHub access path by what's actually available:
+
+- **`gh` CLI, if it's installed and authenticated** (`gh auth status`) — the natural path in Claude Code against a local clone.
+- **Otherwise, the bundled `github-workflow` MCP connector** (see `.mcp.json`, the GitHub server at `https://api.githubcopilot.com/mcp/`) — the path in Cowork, whose sandbox has no `gh`.
+
+Use exactly one of those. Never use any other GitHub connector — if a separate generic "GitHub" connector is also installed, ignore it. Whichever path you take, this skill is create-and-read only: it never merges, never pushes, never deletes.
+
 ## Preflight
 
-1. **Find the repo:** derive `owner/repo` from `git remote get-url origin`. No remote? Stop and tell the user to push the repo to GitHub first — don't guess a repo name.
-2. **Find your GitHub access:** this plugin bundles the GitHub MCP connector (see `.mcp.json`), so prefer its tools first. If the connector's tools aren't available, it just needs a one-time authorization — point the user to **Settings → Connectors → github-workflow → Connect** (GitHub OAuth) and stop until it's authorized; don't tell them to add a connector manually (it's already installed). As a fallback, use the `gh` CLI if it's installed and authenticated (`gh auth status`) — but note `gh` is generally not available in a Cowork sandbox, so the connector is the path there. See `README.md` for the full setup steps.
+1. **Pick your GitHub access.** Check `gh auth status` first; if `gh` is installed and authenticated, use it. If not, use the `github-workflow` connector — its MCP tools (issue read/write, search) must be loaded. If neither is available, the connector just needs a one-time authorization: point the user to **Settings → Connectors → github-workflow → Connect** (GitHub OAuth) and stop until it's authorized; don't tell them to add a connector manually (it's already installed). See `README.md` for setup. Never fall back to a different generic "GitHub" connector.
+2. **Find the repo.** Establish `owner/repo` for the target. With `gh`, derive it from `git remote get-url origin`. Without a remote (e.g. the Cowork sandbox), take it from what the user told you (e.g. "sixeyed/claude-at-work-scratchpad"). If it's genuinely unclear, ask — don't guess a repo name.
 
 ## Steps
 
 1. Read the source material — the doc, register entry, or conversation the user pointed at. Base the issue on what it actually says, not on your summary of the topic.
-2. Check for an existing issue covering the same item (`gh issue list --search ...`); if one exists, report it instead of creating a duplicate.
+2. Check for an existing issue covering the same item — `gh issue list --search ...` or the connector's issue search, scoped to `owner/repo`; if one exists, report it instead of creating a duplicate.
 3. Draft the title in the **imperative** — the issue is a unit of work, so name the work:
    - ✅ `Decide multi-workspace tenancy model`
    - ✅ `Fix login lockout reset`
