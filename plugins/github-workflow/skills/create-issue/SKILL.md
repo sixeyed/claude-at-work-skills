@@ -10,7 +10,7 @@ Turn a decision, task, bug, or open question into a well-formed GitHub issue on 
 ## Preflight
 
 1. **Find the repo:** derive `owner/repo` from `git remote get-url origin`. No remote? Stop and tell the user to push the repo to GitHub first — don't guess a repo name.
-2. **Find your GitHub access:** use the `gh` CLI if it's installed and authenticated (`gh auth status`). If not, use a connected GitHub MCP connector. If neither is available, stop and explain the two options — install/authenticate `gh`, or connect the GitHub connector.
+2. **Find your GitHub access:** this plugin bundles the GitHub MCP connector (see `.mcp.json`), so prefer its tools first. If the connector's tools aren't available, it just needs a one-time authorization — point the user to **Settings → Connectors → github-workflow → Connect** (GitHub OAuth) and stop until it's authorized; don't tell them to add a connector manually (it's already installed). As a fallback, use the `gh` CLI if it's installed and authenticated (`gh auth status`) — but note `gh` is generally not available in a Cowork sandbox, so the connector is the path there. See `README.md` for the full setup steps.
 
 ## Steps
 

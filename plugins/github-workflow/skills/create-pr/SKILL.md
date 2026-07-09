@@ -10,7 +10,7 @@ Push the current branch and open a pull request linked to its issue. Create and 
 ## Preflight
 
 1. **Find the repo:** derive `owner/repo` from `git remote get-url origin`. No remote? Stop and tell the user to push the repo to GitHub first.
-2. **Find your GitHub access:** use the `gh` CLI if installed and authenticated (`gh auth status`); otherwise a connected GitHub MCP connector; if neither, stop and explain the two options.
+2. **Find your GitHub access:** this plugin bundles the GitHub MCP connector (see `.mcp.json`), so prefer its tools first. If they aren't available, the connector needs a one-time authorization — point the user to **Settings → Connectors → github-workflow → Connect** (GitHub OAuth) and stop until it's done; don't tell them to add a connector manually (it's already installed). Fallback: the `gh` CLI if installed and authenticated (`gh auth status`), noting it's generally unavailable in a Cowork sandbox. See `README.md` for setup.
 3. **Check the branch:** if the current branch is the default branch (`main`/`master`), stop — there's nothing to raise a PR from, and this skill never pushes to the default branch.
 
 ## Steps
