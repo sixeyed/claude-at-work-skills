@@ -8,43 +8,34 @@ GitHub development workflow skills for Claude:
 
 None of these skills merge, force-push, or push to the default branch.
 
-## Two access paths — by design
+## How the skills reach GitHub
 
-The skills pick their GitHub access by what's available in the environment they run in:
+- **create-issue → `gh` CLI if present, otherwise a prefilled browser link.** In Claude Code it creates the issue directly with `gh`. Everywhere else (Claude Desktop, Cowork) it drafts the issue and hands you a `github.com/.../issues/new` link with the title and body already filled in — you review and click **Submit new issue** in a browser where you're signed in to GitHub.
+- **work-on-issue and create-pr → `git` and the `gh` CLI.** They run in Claude Code against a real local clone.
 
-- **create-issue → `gh` CLI if present, otherwise the bundled `github-workflow` MCP connector.** In Claude Code it uses `gh`; in Cowork, whose sandbox has no `gh`, it uses the connector. It never uses any other GitHub connector — if a separate generic "GitHub" connector is also installed, it's ignored.
-- **work-on-issue and create-pr → `git` and the `gh` CLI.** They run in Claude Code against a real local clone, where `git` and `gh` are the natural tools. They don't use the connector at all.
+**No GitHub connector is used — deliberately.** GitHub MCP connectors authenticate as GitHub Apps, and app tokens can only write to repos covered by your app installation; a repo being public isn't enough. That means connector-based issue creation works on your own repos and fails with *403 "Resource not accessible by integration"* on anyone else's — including public practice repos. The `gh` CLI has no such limit (its token acts with your full user rights), and the browser link needs no token at all, so those are the only two paths the skills use.
 
-So the connector only matters when **create-issue** runs somewhere without `gh` (i.e. Cowork). Everywhere else, `gh` installed and authenticated is all you need.
+## Setup
 
-## Setup for the connector (create-issue without `gh`, one-time)
+Nothing to set up for the browser-link path — just be signed in to GitHub in your browser.
 
-Only needed where create-issue runs without `gh` — i.e. Cowork. This plugin **bundles the GitHub MCP connector** — see `.mcp.json`, which registers the GitHub server at `https://api.githubcopilot.com/mcp/`. Installing the plugin adds that connector automatically, so **you do not need to add a connector manually**. If you try, you'll get *"A server with this URL already exists"* — that's expected; cancel the dialog.
-
-What you *do* need is a one-time authorization:
-
-1. Open **Settings → Connectors**.
-2. Find **github-workflow** in the list.
-3. Click it and **Connect / Authorize** — this opens GitHub's OAuth sign-in in your browser.
-4. Sign in and approve. The connector moves from *unauthenticated* to *connected*.
-
-Once connected, create-issue's GitHub tools are available and act on the repos your GitHub account can access. If you authorize the connector while a Cowork session is already open, start a fresh session so it picks up the newly-connected connector.
-
-## Setup for work-on-issue and create-pr
-
-These run in Claude Code and only need the `gh` CLI installed and authenticated:
+For Claude Code, install and authenticate the `gh` CLI:
 
 ```bash
 gh auth status   # already logged in?
 gh auth login    # if not
 ```
 
-They derive `owner/repo` from `git remote get-url origin`, so run them from inside the clone.
+work-on-issue and create-pr derive `owner/repo` from `git remote get-url origin`, so run them from inside the clone.
+
+## Practice repo
+
+If you're learning and just want to see the workflow succeed, create-issue defaults to the public practice repo **[sixeyed/claude-at-work-scratchpad](https://github.com/sixeyed/claude-at-work-scratchpad)** when you haven't named a repo. Anyone with a GitHub account can open issues there — it exists so there's nothing to break.
 
 ## Troubleshooting
 
-- **"A server with this URL already exists"** — the connector is already installed by the plugin. Cancel the Add-connector dialog and authorize the existing one under Settings → Connectors instead.
-- **create-issue says it has no GitHub access** — the `github-workflow` connector isn't authorized yet, or the session started before you authorized it. Complete the setup above, then start a fresh Cowork session.
-- **create-issue keeps hitting a 403 / "not accessible by integration"** — it's likely using a *different* GitHub connector than `github-workflow`. This skill uses `github-workflow` only; make sure that connector is the one authorized and available.
+- **Claude tried to use a GitHub connector and got a 403** — the skills say not to; point Claude back at the skill. The fix is never to authorize more connectors: use `gh` or the prefilled link.
+- **The prefilled link opens an empty issue form** — the URL was probably truncated (very long bodies). Ask Claude for a shorter body, or paste the drafted text in manually.
+- **Labels missing on an issue** — labels are only applied via `gh` on repos you can push to; GitHub drops them from non-collaborators, so the skill skips them elsewhere. That's expected on the practice repo.
 - **work-on-issue / create-pr can't reach GitHub** — check `gh auth status`; run `gh auth login` if needed.
-- **A skill says there's no git remote** — work-on-issue and create-pr derive `owner/repo` from `git remote get-url origin`; add the remote if it's missing. create-issue takes `owner/repo` from what you tell it, since there's no remote to read in the sandbox.
+- **A skill says there's no git remote** — work-on-issue and create-pr derive `owner/repo` from `git remote get-url origin`; add the remote if it's missing. create-issue takes `owner/repo` from what you tell it when there's no remote to read.
