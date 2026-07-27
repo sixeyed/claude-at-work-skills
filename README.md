@@ -1,6 +1,8 @@
 # Claude at Work — skills
 
-A plugin marketplace for [Claude Code](https://code.claude.com). Claude is perfectly capable of working with GitHub out of the box, but every session does it slightly differently — issue titles in whatever format seems right at the time, branch names that don't link back to anything, and the occasional overenthusiastic push. The skills in this marketplace pin down one workflow so the output is consistent, and the risky steps always stay with you.
+A plugin marketplace for [Claude Code](https://code.claude.com). These are sample skills used in the bool Claude at Work (Manning), by Elton Stoneman.
+
+> [Claude at Work - repo](https://github.com/sixeyed/claude-at-work)
 
 ## What's in here
 
